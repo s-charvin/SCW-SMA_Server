@@ -1,0 +1,11 @@
+
+{
+    "server_host": "0.0.0.0",
+    "server_port": 9001,
+    "cache_dir": "./output",
+    "control_executor_maxNum": 200,
+    "support_hardware_videoDecode": false,
+    "support_hardware_videoEncode": false,
+    "algorithm_device": "cpu",
+    "algorithm_instanceNum": 1
+}
