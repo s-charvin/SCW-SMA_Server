@@ -1,3 +1,4 @@
+
 extern "C"
 {
 #include <libavutil/imgutils.h>
@@ -53,6 +54,7 @@ namespace CMA
                 LOG(ERROR) << "avformat_open_input failed, ret: " << ret;
                 return false;
             }
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
             if ((ret = avformat_find_stream_info(m_formatContext, nullptr)) < 0)
             {
@@ -60,14 +62,15 @@ namespace CMA
                 return false;
             }
 
-            stream_ctx = (StreamContext *)av_calloc(m_formatContext->nb_streams, sizeof(*stream_ctx));
+            nb_streams = m_formatContext->nb_streams;
+            stream_ctx = (StreamContext *)av_calloc(nb_streams, sizeof(*stream_ctx));
             if (!stream_ctx)
             {
                 LOG(ERROR) << "av_calloc failed.";
                 return false;
             }
 
-            for (i = 0; i < m_formatContext->nb_streams; i++)
+            for (i = 0; i < nb_streams; i++)
             {
                 AVStream *stream = m_formatContext->streams[i];
                 if (stream->codecpar->codec_type != AVMEDIA_TYPE_VIDEO && stream->codecpar->codec_type != AVMEDIA_TYPE_AUDIO)
@@ -165,11 +168,14 @@ namespace CMA
             if (m_formatContext != nullptr && stream_ctx != nullptr)
             {
                 unsigned int i;
-                for (i = 0; i < m_formatContext->nb_streams; i++)
+                AVCodecContext *codec_ctx0 = stream_ctx[0].codec_ctx;
+                AVCodecContext *codec_ctx1 = stream_ctx[1].codec_ctx;
+                for (i = 0; i < nb_streams; i++)
                 {
-                    if (stream_ctx[i].codec_ctx != nullptr)
+                    AVCodecContext *codec_ctx = stream_ctx[i].codec_ctx;
+                    if (codec_ctx != nullptr)
                     {
-                        avcodec_free_context(&stream_ctx[i].codec_ctx);
+                        avcodec_free_context(&codec_ctx);
                     }
                 }
                 av_free(stream_ctx);
@@ -374,7 +380,14 @@ namespace CMA
                         frame_bgr->format = AV_PIX_FMT_BGR24;
                         frame_bgr->width = width;
                         frame_bgr->height = height;
-                        av_frame_get_buffer(frame_bgr, 1); // 为视频帧数据 AVFrame 分配内存
+                        ret = av_frame_get_buffer(frame_bgr, 1); // 为视频帧数据 AVFrame 分配内存
+
+                        if (ret < 0)
+                        {
+                            LOG(ERROR) << "av_frame_get_buffer failed, ret: " << ret;
+                            av_frame_free(&frame_bgr);
+                            goto end;
+                        }
 
                         // 将解码后的视频帧数据 AVFrame 转换为 BGR 格式
                         sws_scale(sws_ctx_yuv420p2bgr, (const uint8_t *const *)frame_yuv420p->data, frame_yuv420p->linesize, 0, height, frame_bgr->data, frame_bgr->linesize);
@@ -414,7 +427,7 @@ namespace CMA
 
                         frame_s16 = av_frame_alloc();
 
-                        if (frame_pcm == nullptr || frame_s16 == nullptr)
+                        if (frame_s16 == nullptr)
                         {
                             LOG(ERROR) << "av_frame_alloc failed.";
                             goto end;
@@ -425,7 +438,13 @@ namespace CMA
                         frame_s16->ch_layout = ch_layout;
                         frame_s16->sample_rate = sample_rate;
 
-                        av_frame_get_buffer(frame_s16, 1);
+                        ret = av_frame_get_buffer(frame_s16, 1);
+                        if (ret < 0)
+                        {
+                            LOG(ERROR) << "av_frame_get_buffer failed, ret: " << ret;
+                            av_frame_free(&frame_s16);
+                            goto end;
+                        }
 
                         swr_convert(swr_ctx_pcm2s16, frame_s16->data, frame_s16->nb_samples, (const uint8_t **)frame_pcm->data, frame_pcm->nb_samples);
 
@@ -439,17 +458,14 @@ namespace CMA
             }
 
         end:
+
             if (packet != nullptr)
                 av_packet_free(&packet);
 
             if (frame_yuv420p != nullptr)
                 av_frame_free(&frame_yuv420p);
-            if (frame_bgr != nullptr)
-                av_frame_free(&frame_bgr);
             if (frame_pcm != nullptr)
                 av_frame_free(&frame_pcm);
-            if (frame_s16 != nullptr)
-                av_frame_free(&frame_s16);
 
             if (sws_ctx_yuv420p2bgr != nullptr)
                 sws_freeContext(sws_ctx_yuv420p2bgr);
@@ -486,9 +502,10 @@ namespace CMA
                 return false;
             }
 
-            stream_ctx = (StreamContext *)av_calloc(m_pullStream->m_formatContext->nb_streams, sizeof(*stream_ctx));
+            nb_streams = m_pullStream->m_formatContext->nb_streams;
+            stream_ctx = (StreamContext *)av_calloc(nb_streams, sizeof(*stream_ctx));
 
-            for (i = 0; i < m_pullStream->m_formatContext->nb_streams; i++)
+            for (i = 0; i < nb_streams; i++)
             {
 
                 AVStream *in_stream;
@@ -623,7 +640,7 @@ namespace CMA
             if (m_formatContext != nullptr && stream_ctx != nullptr)
             {
                 unsigned int i;
-                for (i = 0; i < m_formatContext->nb_streams; i++)
+                for (i = 0; i < nb_streams; i++)
                 {
                     avcodec_free_context(&stream_ctx[i].codec_ctx);
                 }
@@ -885,6 +902,7 @@ namespace CMA
             }
 
         end:
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
             if (packet != nullptr)
                 av_packet_free(&packet);
             if (frame_in != nullptr)
@@ -911,3 +929,4 @@ namespace CMA
 
     } // namespace Stream
 } // namespace CMA
+

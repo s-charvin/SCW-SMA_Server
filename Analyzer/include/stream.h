@@ -1,7 +1,7 @@
 
 
-#ifndef __CMA_Stream_H__
-#define __CMA_Stream_H__
+#ifndef __CMA_STREAM_H__
+#define __CMA_STREAM_H__
 
 #include <queue>
 #include <mutex>
@@ -55,6 +55,7 @@ namespace CMA
             // ref: https://blog.csdn.net/leixiaohua1020/article/details/14214705
             AVFormatContext *m_formatContext; // 存储格式化的媒体流环境对象地址
             StreamContext *stream_ctx;
+            unsigned int nb_streams;
 
             void start(TaskManage::TaskExecutor *executor); // 读取流数据线程
 
@@ -83,7 +84,7 @@ namespace CMA
             // ref: https://blog.csdn.net/leixiaohua1020/article/details/14214705
             AVFormatContext *m_formatContext; // 存储格式化的媒体流环境对象地址
             StreamContext *stream_ctx;
-
+            unsigned int nb_streams;
             int m_videoIndex;
             int m_audioIndex;
 
@@ -102,4 +103,4 @@ namespace CMA
 
     } // namespace Stream
 } // namespace CMA
-#endif // __CMA_Stream_H__
+#endif // __CMA_STREAM_H__

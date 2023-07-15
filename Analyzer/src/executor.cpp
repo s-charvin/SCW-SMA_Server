@@ -69,16 +69,26 @@ namespace CMA
             th = new std::thread(
                 [&]()
                 {
+                    AnalyzerManage::Analyzer analyzer = AnalyzerManage::Analyzer(m_scheduler->getConfig(), m_config);
+                    
                     while (m_state)
                     {
                         AVFrame *frame = nullptr;
                         int index = 0;
                         // LOG(INFO) << "Task " << id << " get frame.";
                         m_pullStream->getFrame(frame, index);
-                        if (frame != nullptr)
+
+                        AlgorithmManage::AlgorithmResult* result = analyzer.processFrame(frame);
+                        
+                        if (frame != nullptr && m_pushStream->pushFrame(frame, index))
                         {
+                            continue;
                             // LOG(INFO) << "Task " << id << " push frame.";
-                            m_pushStream->pushFrame(frame, index);
+                        }
+                        else if (frame != nullptr)
+                        {
+                            av_frame_free(&frame);
+                            LOG(ERROR) << "Task " << id << " push frame failed.";
                         }
                     }
                 });

@@ -577,7 +577,7 @@ namespace CMA
             /*管理器所管理的参数名列表 */
             const std::vector<std::string> param_names = {
                 "id", "priority", "delay", "pullStream_address", "pushStream_enable", "pushStream_address",
-                "algorithmCode", "process_minInterval", "processFps",
+                "algorithmName", "process_minInterval", "processFps",
                 "executorStartTimestamp",
                 "videoWidth", "videoHeight", "videoChannel", "videoIndex", "videoFps",
                 "audioIndex", "audioSampleRate", "audioChannel", "audioFps"};

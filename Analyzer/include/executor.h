@@ -11,9 +11,15 @@
 #include "utils.h"
 #include "scheduler.h"
 #include "stream.h"
-
+#include "algorithm.h"
 namespace CMA
 {
+
+
+    namespace AlgorithmManage
+    {
+        struct AlgorithmResult;
+    }
 
     namespace ConfigManage
     {
