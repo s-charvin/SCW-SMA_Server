@@ -14,6 +14,7 @@
 #include "config.h"
 #include "utils.h"
 #include "executor.h"
+#include "analyzer.h"
 
 using namespace CMA;
 using ConfigManage::CMAConfig; // 全局配置参数管理
@@ -21,6 +22,11 @@ using ConfigManage::TaskConfig;
 
 namespace CMA
 {
+
+    namespace AnalyzerManage
+    {
+        class Analyzer;
+    }
 
     namespace TaskManage
     {

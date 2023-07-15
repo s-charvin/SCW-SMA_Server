@@ -127,7 +127,7 @@ namespace CMA
             config_mgr->set("pushStream_enable", phse, "pushStream_enable");
             config_mgr->set("pushStream_address", phsa, "pushStream_address");
 
-            config_mgr->set("algorithmCode", ac, "algorithmCode");
+            config_mgr->set("algorithmName", ac, "algorithmName");
             config_mgr->set("process_minInterval", ami, "process_minInterval");
 
             //  以下参数运行过程中自行计算
@@ -155,7 +155,7 @@ namespace CMA
             config_mgr->set("pushStream_enable", root["pushStream_enable"].get<bool>(), "pushStream_enable");
             config_mgr->set("pushStream_address", root["pushStream_address"].get<std::string>(), "pushStream_address");
 
-            config_mgr->set("algorithmCode", root["algorithmCode"].get<std::string>(), "algorithmCode");
+            config_mgr->set("algorithmName", root["algorithmName"].get<std::string>(), "algorithmName");
             config_mgr->set("process_minInterval", root["process_minInterval"].get<int64_t>(), "process_minInterval");
 
             //  以下参数运行过程中自行计算
