@@ -151,3 +151,4 @@ PCbuild\build.bat -t Clean  && PCbuild\build.bat -t Build -p x64 -c Release
 - [√] 接口服务和任务调度接口管理
 - [√] 任务：流媒体拉流和推流（单线程）
 - [ ] 任务：算法分析
+- [ ] 多端控制
